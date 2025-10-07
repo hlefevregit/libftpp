@@ -6,7 +6,7 @@
 /*   By: hulefevr <hulefevr@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/06 15:17:41 by hulefevr          #+#    #+#             */
-/*   Updated: 2025/10/06 15:39:16 by hulefevr         ###   ########.fr       */
+/*   Updated: 2025/10/07 18:22:32 by hulefevr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,10 +21,10 @@
 #include <atomic>
 #include <chrono>
 
-class PersistantWorker {
+class PersistentWorker {
 public:
-	PersistantWorker();
-	~PersistantWorker();
+	PersistentWorker();
+	~PersistentWorker();
 
 	void addTask(const std::string& name, const std::function<void()>& jobToExecute);
 	
@@ -34,8 +34,8 @@ private:
 
 	void workerThread();
 	
-	PersistantWorker(const PersistantWorker& other);
-	PersistantWorker& operator=(const PersistantWorker& other);
+	PersistentWorker(const PersistentWorker& other);
+	PersistentWorker& operator=(const PersistentWorker& other);
 
 	std::thread _worker;
 	std::atomic<bool> _stop;

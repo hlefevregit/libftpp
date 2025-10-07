@@ -6,7 +6,7 @@
 /*   By: hulefevr <hulefevr@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/30 15:24:30 by hulefevr          #+#    #+#             */
-/*   Updated: 2025/10/06 15:49:21 by hulefevr         ###   ########.fr       */
+/*   Updated: 2025/10/07 18:33:19 by hulefevr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 #include "./includes/data_buffer.hpp"
 #include "./includes/design_patterns.hpp"
 #include "./includes/threading.hpp"
+#include "./includes/network.hpp"
 
 
 
@@ -2835,8 +2836,8 @@ void testWorkerPool() {
 /*==============================================================================================*/
 /*==============================================================================================*/
 
-void testPersistantWorkerBasic() {
-    std::cout << "\n=== Testing PersistantWorker - Basic Operations ===\n";
+void testPersistentWorkerBasic() {
+    std::cout << "\n=== Testing PersistentWorker - Basic Operations ===\n";
     
     ThreadSafeIOStream tsio;
     tsio.setPrefix("[BASIC] ");
@@ -2846,7 +2847,7 @@ void testPersistantWorkerBasic() {
     std::atomic<int> task2Count(0);
     
     {
-        PersistantWorker worker;
+        PersistentWorker worker;
         
         // Add first task
         worker.addTask("counter1", [&task1Count, &tsio]() {
@@ -2865,7 +2866,7 @@ void testPersistantWorkerBasic() {
         // Let it run for a while
         std::this_thread::sleep_for(std::chrono::milliseconds(550)); // ~5-6 cycles
         
-    } // PersistantWorker destructor called here
+    } // PersistentWorker destructor called here
     
     tsio << "Worker destroyed. Final counts:" << std::endl;
     tsio << "Task 1 count: " << task1Count.load() << std::endl;
@@ -2875,11 +2876,11 @@ void testPersistantWorkerBasic() {
     bool testPassed = (task1Count.load() >= 4) && (task2Count.load() >= 4) &&
                       (task1Count.load() == task2Count.load()); // Should be equal
     
-    std::cout << "PersistantWorker basic test: " << (testPassed ? "PASSED" : "FAILED") << std::endl;
+    std::cout << "PersistentWorker basic test: " << (testPassed ? "PASSED" : "FAILED") << std::endl;
 }
 
-void testPersistantWorkerTaskManagement() {
-    std::cout << "\n=== Testing PersistantWorker - Task Management ===\n";
+void testPersistentWorkerTaskManagement() {
+    std::cout << "\n=== Testing PersistentWorker - Task Management ===\n";
     
     ThreadSafeIOStream tsio;
     tsio.setPrefix("[MGMT] ");
@@ -2888,7 +2889,7 @@ void testPersistantWorkerTaskManagement() {
     std::atomic<int> taskBCount(0);
     std::atomic<int> taskCCount(0);
     
-    PersistantWorker worker;
+    PersistentWorker worker;
     
     // Add initial tasks
     tsio << "Adding initial tasks A and B..." << std::endl;
@@ -2947,11 +2948,11 @@ void testPersistantWorkerTaskManagement() {
     tsio << "Task A continued: " << (taskAContinued ? "YES" : "NO") << std::endl;
     
     bool testPassed = taskCStarted && taskBStopped && taskAContinued;
-    std::cout << "PersistantWorker task management test: " << (testPassed ? "PASSED" : "FAILED") << std::endl;
+    std::cout << "PersistentWorker task management test: " << (testPassed ? "PASSED" : "FAILED") << std::endl;
 }
 
-void testPersistantWorkerTaskReplacement() {
-    std::cout << "\n=== Testing PersistantWorker - Task Replacement ===\n";
+void testPersistentWorkerTaskReplacement() {
+    std::cout << "\n=== Testing PersistentWorker - Task Replacement ===\n";
     
     ThreadSafeIOStream tsio;
     tsio.setPrefix("[REPLACE] ");
@@ -2959,7 +2960,7 @@ void testPersistantWorkerTaskReplacement() {
     std::atomic<int> version1Count(0);
     std::atomic<int> version2Count(0);
     
-    PersistantWorker worker;
+    PersistentWorker worker;
     
     // Add initial version of task
     tsio << "Adding task version 1..." << std::endl;
@@ -2995,10 +2996,10 @@ void testPersistantWorkerTaskReplacement() {
     tsio << "Version 2 started: " << (version2Started ? "YES" : "NO") << std::endl;
     
     bool testPassed = version1Stopped && version2Started;
-    std::cout << "PersistantWorker task replacement test: " << (testPassed ? "PASSED" : "FAILED") << std::endl;
+    std::cout << "PersistentWorker task replacement test: " << (testPassed ? "PASSED" : "FAILED") << std::endl;
 }
-void testPersistantWorkerErrorHandling() {
-    std::cout << "\n=== Testing PersistantWorker - Error Handling ===\n";
+void testPersistentWorkerErrorHandling() {
+    std::cout << "\n=== Testing PersistentWorker - Error Handling ===\n";
     
     ThreadSafeIOStream tsio;
     tsio.setPrefix("[ERROR] ");
@@ -3008,7 +3009,7 @@ void testPersistantWorkerErrorHandling() {
     std::atomic<int> recoveryTaskCount(0);
     
     { // ✅ FIX: Ajouter un scope pour limiter la durée de vie du worker
-        PersistantWorker worker;
+        PersistentWorker worker;
         
         // Add a task that works normally
         worker.addTask("good_task", [&goodTaskCount, &tsio]() {
@@ -3071,17 +3072,17 @@ void testPersistantWorkerErrorHandling() {
         tsio << "Recovery executed: " << (recoveryExecuted ? "YES" : "NO") << std::endl;
         
         bool testPassed = goodTaskContinued && errorTaskRemoved && recoveryExecuted;
-        std::cout << "PersistantWorker error handling test: " << (testPassed ? "PASSED" : "FAILED") << std::endl;
+        std::cout << "PersistentWorker error handling test: " << (testPassed ? "PASSED" : "FAILED") << std::endl;
         
-    } // ✅ Le PersistantWorker se détruit automatiquement ici et son thread se termine proprement
+    } // ✅ Le PersistentWorker se détruit automatiquement ici et son thread se termine proprement
     
     // ✅ Petite pause pour s'assurer que le destructeur est terminé
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
 
 
-void testPersistantWorkerComplexTasks() {
-    std::cout << "\n=== Testing PersistantWorker - Complex Tasks ===\n";
+void testPersistentWorkerComplexTasks() {
+    std::cout << "\n=== Testing PersistentWorker - Complex Tasks ===\n";
     
     ThreadSafeIOStream tsio;
     tsio.setPrefix("[COMPLEX] ");
@@ -3096,7 +3097,7 @@ void testPersistantWorkerComplexTasks() {
     } stats;
     
     {  // ✅ FIX 1: Ajouter un scope pour limiter la durée de vie du worker
-        PersistantWorker monitor;
+        PersistentWorker monitor;
         
         // CPU monitoring task
         monitor.addTask("cpu_monitor", [&stats, &tsio]() {
@@ -3201,11 +3202,11 @@ void testPersistantWorkerComplexTasks() {
     tsio << "Alert system worked: " << (alertSystemWorked ? "YES" : "NO") << std::endl;
     
     bool testPassed = allMonitorsWorked && alertSystemWorked;
-    std::cout << "PersistantWorker complex tasks test: " << (testPassed ? "PASSED" : "FAILED") << std::endl;
+    std::cout << "PersistentWorker complex tasks test: " << (testPassed ? "PASSED" : "FAILED") << std::endl;
 }
 
-void testPersistantWorkerPerformance() {
-    std::cout << "\n=== Testing PersistantWorker - Performance ===\n";
+void testPersistentWorkerPerformance() {
+    std::cout << "\n=== Testing PersistentWorker - Performance ===\n";
     
     ThreadSafeIOStream tsio;
     tsio.setPrefix("[PERF] ");
@@ -3216,7 +3217,7 @@ void testPersistantWorkerPerformance() {
     
     auto startTime = std::chrono::high_resolution_clock::now();
     
-    PersistantWorker worker;
+    PersistentWorker worker;
     
     // ✅ FIX: Toutes les tâches font du travail équivalent, pas de sleep artificiel
     worker.addTask("fast_task", [&fastTaskCount]() {
@@ -3266,11 +3267,11 @@ void testPersistantWorkerPerformance() {
     tsio << "All tasks executed: " << (allExecuted ? "YES" : "NO") << std::endl;
     
     bool testPassed = performanceGradient && allExecuted;
-    std::cout << "PersistantWorker performance test: " << (testPassed ? "PASSED" : "FAILED") << std::endl;
+    std::cout << "PersistentWorker performance test: " << (testPassed ? "PASSED" : "FAILED") << std::endl;
 }
 
-void testPersistantWorkerLifecycle() {
-    std::cout << "\n=== Testing PersistantWorker - Lifecycle ===\n";
+void testPersistentWorkerLifecycle() {
+    std::cout << "\n=== Testing PersistentWorker - Lifecycle ===\n";
     
     ThreadSafeIOStream tsio;
     tsio.setPrefix("[LIFECYCLE] ");
@@ -3284,7 +3285,7 @@ void testPersistantWorkerLifecycle() {
         std::atomic<int> instanceExecutions(0);
         
         {
-            PersistantWorker worker;
+            PersistentWorker worker;
             
             // Add task to this instance
             worker.addTask("lifecycle_task", [&instanceExecutions, &totalExecutions, instance, &tsio]() {
@@ -3319,16 +3320,16 @@ void testPersistantWorkerLifecycle() {
     
     tsio << "All instances worked: " << (allInstancesWorked ? "YES" : "NO") << std::endl;
     
-    std::cout << "PersistantWorker lifecycle test: " << (allInstancesWorked ? "PASSED" : "FAILED") << std::endl;
+    std::cout << "PersistentWorker lifecycle test: " << (allInstancesWorked ? "PASSED" : "FAILED") << std::endl;
 }
 
-void testPersistantWorkerThreadSafety() {
-    std::cout << "\n=== Testing PersistantWorker - Thread Safety ===\n";
+void testPersistentWorkerThreadSafety() {
+    std::cout << "\n=== Testing PersistentWorker - Thread Safety ===\n";
     
     ThreadSafeIOStream tsio;
     tsio.setPrefix("[THREAD_SAFE] ");
     
-    PersistantWorker worker;
+    PersistentWorker worker;
     std::atomic<int> sharedCounter(0);
     std::atomic<int> taskModifications(0);
     
@@ -3382,64 +3383,519 @@ void testPersistantWorkerThreadSafety() {
     
     // The test passes if no crashes occurred and basic functionality worked
     bool testPassed = counterIncreased && modificationsCompleted;
-    std::cout << "PersistantWorker thread safety test: " << (testPassed ? "PASSED" : "FAILED") << std::endl;
+    std::cout << "PersistentWorker thread safety test: " << (testPassed ? "PASSED" : "FAILED") << std::endl;
 }
 
-// Main test function for PersistantWorker
-void testPersistantWorker() {
-    testPersistantWorkerBasic();
-    testPersistantWorkerTaskManagement();
-    testPersistantWorkerTaskReplacement();
-    testPersistantWorkerComplexTasks();
-    testPersistantWorkerPerformance();
-    testPersistantWorkerLifecycle();
-    testPersistantWorkerThreadSafety();
+// Main test function for PersistentWorker
+void testPersistentWorker() {
+    testPersistentWorkerBasic();
+    testPersistentWorkerTaskManagement();
+    testPersistentWorkerTaskReplacement();
+    testPersistentWorkerComplexTasks();
+    testPersistentWorkerPerformance();
+    testPersistentWorkerLifecycle();
+    testPersistentWorkerThreadSafety();
 }
+
+/*==============================================================================================*/
+/*==============================================================================================*/
+/*==============================================================================================*/
+/*========================================== MESSAGE ===========================================*/
+/*==============================================================================================*/
+/*==============================================================================================*/
+/*==============================================================================================*/
+
+void testMessageBasic() {
+    std::cout << "\n=== Testing Message - Basic Operations ===\n";
+    
+    // Test default constructor
+    Message msg1;
+    std::cout << "Default message type: " << msg1.type() << " (expected: 0)" << std::endl;
+    
+    // Test constructor with type
+    Message msg2(1);  // TEXT type
+    std::cout << "Text message type: " << msg2.type() << " (expected: 1)" << std::endl;
+    
+    Message msg3(3);  // COMMAND type
+    std::cout << "Command message type: " << msg3.type() << " (expected: 3)" << std::endl;
+    
+    // Test raw data access
+    const auto& rawData = msg1.rawData();
+    std::cout << "Raw data size (with header): " << rawData.size() << std::endl;
+    
+    bool testPassed = (msg1.type() == 0) && (msg2.type() == 1) && (msg3.type() == 3) && (rawData.size() > 0);
+    std::cout << "Message basic test: " << (testPassed ? "PASSED" : "FAILED") << std::endl;
+}
+
+void testMessageDataOperations() {
+    std::cout << "\n=== Testing Message - Data Operations ===\n";
+    
+    Message msg(1);  // TEXT type
+    
+    // Test writing different data types
+    int intValue = 42;
+    double doubleValue = 3.14159;
+    bool boolValue = true;
+    char charValue = 'A';
+    
+    std::cout << "Writing data to message..." << std::endl;
+    msg << intValue << doubleValue << boolValue << charValue;
+    
+    std::cout << "Raw data size after writing: " << msg.rawData().size() << std::endl;
+    
+    // Test reading data back
+    std::cout << "Reading data from message..." << std::endl;
+    int readInt;
+    double readDouble;
+    bool readBool;
+    char readChar;
+    
+    msg >> readInt >> readDouble >> readBool >> readChar;
+    
+    std::cout << "Read values:" << std::endl;
+    std::cout << "  Int: " << readInt << " (expected: " << intValue << ")" << std::endl;
+    std::cout << "  Double: " << readDouble << " (expected: " << doubleValue << ")" << std::endl;
+    std::cout << "  Bool: " << std::boolalpha << readBool << " (expected: " << boolValue << ")" << std::noboolalpha << std::endl;
+    std::cout << "  Char: " << readChar << " (expected: " << charValue << ")" << std::endl;
+    
+    bool testPassed = (readInt == intValue) && (readDouble == doubleValue) && 
+                      (readBool == boolValue) && (readChar == charValue);
+    
+    std::cout << "Message data operations test: " << (testPassed ? "PASSED" : "FAILED") << std::endl;
+}
+
+void testMessageStringOperations() {
+    std::cout << "\n=== Testing Message - String Operations ===\n";
+    
+    Message msg(1);  // TEXT type
+    
+    // Test string writing
+    std::string originalString = "Hello, Message World!";
+    std::cout << "Writing string: \"" << originalString << "\"" << std::endl;
+    
+    msg << originalString;
+    std::cout << "Raw data size after string: " << msg.rawData().size() << std::endl;
+    
+    // Test string reading
+    std::string readString;
+    msg >> readString;
+    
+    std::cout << "Read string: \"" << readString << "\"" << std::endl;
+    
+    // Test empty string
+    Message msg2(1);
+    std::string emptyString = "";
+    msg2 << emptyString;
+    
+    std::string readEmptyString;
+    msg2 >> readEmptyString;
+    
+    std::cout << "Empty string test: \"" << readEmptyString << "\" (length: " << readEmptyString.length() << ")" << std::endl;
+    
+    // Test multiple strings
+    Message msg3(1);
+    std::string str1 = "First";
+    std::string str2 = "Second";
+    std::string str3 = "Third";
+    
+    msg3 << str1 << str2 << str3;
+    
+    std::string readStr1, readStr2, readStr3;
+    msg3 >> readStr1 >> readStr2 >> readStr3;
+    
+    std::cout << "Multiple strings: \"" << readStr1 << "\", \"" << readStr2 << "\", \"" << readStr3 << "\"" << std::endl;
+    
+    bool testPassed = (readString == originalString) && 
+                      (readEmptyString == emptyString) &&
+                      (readStr1 == str1) && (readStr2 == str2) && (readStr3 == str3);
+    
+    std::cout << "Message string operations test: " << (testPassed ? "PASSED" : "FAILED") << std::endl;
+}
+
+void testMessageMixedData() {
+    std::cout << "\n=== Testing Message - Mixed Data Types ===\n";
+    
+    Message msg(2);  // BINARY type
+    
+    // Mixed data
+    int id = 12345;
+    std::string name = "TestUser";
+    double score = 98.76;
+    bool active = true;
+    float ratio = 0.85f;
+    
+    std::cout << "Writing mixed data..." << std::endl;
+    msg << id << name << score << active << ratio;
+    
+    std::cout << "Message size with mixed data: " << msg.rawData().size() << std::endl;
+    
+    // Read back in same order
+    int readId;
+    std::string readName;
+    double readScore;
+    bool readActive;
+    float readRatio;
+    
+    std::cout << "Reading mixed data..." << std::endl;
+    msg >> readId >> readName >> readScore >> readActive >> readRatio;
+    
+    std::cout << "Read values:" << std::endl;
+    std::cout << "  ID: " << readId << " (expected: " << id << ")" << std::endl;
+    std::cout << "  Name: \"" << readName << "\" (expected: \"" << name << "\")" << std::endl;
+    std::cout << "  Score: " << readScore << " (expected: " << score << ")" << std::endl;
+    std::cout << "  Active: " << std::boolalpha << readActive << " (expected: " << active << ")" << std::noboolalpha << std::endl;
+    std::cout << "  Ratio: " << readRatio << " (expected: " << ratio << ")" << std::endl;
+    
+    bool testPassed = (readId == id) && (readName == name) && (readScore == score) && 
+                      (readActive == active) && (std::abs(readRatio - ratio) < 0.001f);
+    
+    std::cout << "Message mixed data test: " << (testPassed ? "PASSED" : "FAILED") << std::endl;
+}
+
+void testMessageStructData() {
+    std::cout << "\n=== Testing Message - Struct Data ===\n";
+    
+    // Test struct (must be trivially copyable)
+    struct PlayerStats {
+        int level;
+        float health;
+        int experience;
+        bool alive;
+    };
+    
+    Message msg(2);  // BINARY type
+    
+    PlayerStats originalStats = {15, 87.5f, 12500, true};
+    
+    std::cout << "Writing struct data..." << std::endl;
+    std::cout << "Original: Level=" << originalStats.level 
+              << ", Health=" << originalStats.health 
+              << ", XP=" << originalStats.experience 
+              << ", Alive=" << originalStats.alive << std::endl;
+    
+    msg << originalStats;
+    
+    PlayerStats readStats;
+    msg >> readStats;
+    
+    std::cout << "Read: Level=" << readStats.level 
+              << ", Health=" << readStats.health 
+              << ", XP=" << readStats.experience 
+              << ", Alive=" << readStats.alive << std::endl;
+    
+    bool testPassed = (readStats.level == originalStats.level) && 
+                      (std::abs(readStats.health - originalStats.health) < 0.001f) &&
+                      (readStats.experience == originalStats.experience) &&
+                      (readStats.alive == originalStats.alive);
+    
+    std::cout << "Message struct data test: " << (testPassed ? "PASSED" : "FAILED") << std::endl;
+}
+
+void testMessageClearOperations() {
+    std::cout << "\n=== Testing Message - Clear Operations ===\n";
+    
+    Message msg(3);  // COMMAND type
+    
+    // Add some data
+    msg << 42 << std::string("test") << 3.14;
+    size_t sizeWithData = msg.rawData().size();
+    
+    std::cout << "Size with data: " << sizeWithData << std::endl;
+    
+    // Test resetData
+    std::cout << "Testing resetData..." << std::endl;
+    msg.resetData();
+    size_t sizeAfterReset = msg.rawData().size();
+    
+    std::cout << "Size after resetData: " << sizeAfterReset << std::endl;
+    std::cout << "Type after resetData: " << msg.type() << " (should still be 3)" << std::endl;
+    
+    // Add data again
+    msg << 99;
+    int readValue;
+    msg >> readValue;
+    std::cout << "Value after resetData and new write: " << readValue << std::endl;
+    
+    // Test clear
+    std::cout << "Testing clear..." << std::endl;
+    msg.clear();
+    size_t sizeAfterClear = msg.rawData().size();
+    
+    std::cout << "Size after clear: " << sizeAfterClear << std::endl;
+    std::cout << "Type after clear: " << msg.type() << " (should be 0)" << std::endl;
+    
+    bool testPassed = (sizeWithData > sizeAfterReset) && 
+                      (msg.type() == 0) && 
+                      (readValue == 99);
+    
+    std::cout << "Message clear operations test: " << (testPassed ? "PASSED" : "FAILED") << std::endl;
+}
+
+void testMessagePrintOperations() {
+    std::cout << "\n=== Testing Message - Print Operations ===\n";
+    
+    Message msg(1);  // TEXT type
+    
+    // Add some data for display
+    msg << std::string("Hello") << 42 << 3.14f << true;
+    
+    std::cout << "Printing message contents:\n";
+    std::cout << "--- Message Print Output ---\n";
+    msg.print();
+    std::cout << "--- End Print Output ---\n";
+    
+    std::cout << "Message print operations test: COMPLETED (visual inspection required)\n";
+}
+
+void testMessageErrorHandling() {
+    std::cout << "\n=== Testing Message - Error Handling ===\n";
+    
+    Message msg(1);
+    
+    // Test reading from empty message (beyond header)
+    try {
+        int value;
+        std::cout << "Attempting to read from empty message..." << std::endl;
+        msg >> value;
+        std::cout << "ERROR: Should have thrown exception!" << std::endl;
+    } catch (const std::runtime_error& e) {
+        std::cout << "Expected exception: " << e.what() << std::endl;
+    }
+    
+    // Test reading more data than available
+    msg << 42;  // Add one int
+    
+    try {
+        int val1, val2;
+        msg >> val1;  // This should work
+        std::cout << "Successfully read first value: " << val1 << std::endl;
+        
+        std::cout << "Attempting to read beyond available data..." << std::endl;
+        msg >> val2;  // This should fail
+        std::cout << "ERROR: Should have thrown exception!" << std::endl;
+    } catch (const std::runtime_error& e) {
+        std::cout << "Expected exception: " << e.what() << std::endl;
+    }
+    
+    // Test string reading from corrupted data
+    Message msg2(1);
+    
+    // Write a very large string size manually (this would be corrupted data)
+    uint32_t fakeSize = 999999;
+    msg2 << fakeSize;  // This would make the string reading think there's a huge string
+    
+    try {
+        std::string corruptedString;
+        std::cout << "Attempting to read corrupted string data..." << std::endl;
+        msg2 >> corruptedString;
+        std::cout << "ERROR: Should have thrown exception!" << std::endl;
+    } catch (const std::runtime_error& e) {
+        std::cout << "Expected exception: " << e.what() << std::endl;
+    }
+    
+    std::cout << "Message error handling test: PASSED\n";
+}
+
+void testMessageTypeSystem() {
+    std::cout << "\n=== Testing Message - Type System ===\n";
+    
+    // Test all predefined types
+    std::vector<int> types = {0, 1, 2, 3};  // UNKNOWN, TEXT, BINARY, COMMAND
+    std::vector<std::string> expectedNames = {"UNKNOWN", "TEXT", "BINARY", "COMMAND"};
+    
+    for (size_t i = 0; i < types.size(); ++i) {
+        Message msg(types[i]);
+        std::cout << "Type " << types[i] << ": ";
+        msg.printType();
+    }
+    
+    // Test unknown type
+    Message unknownMsg(999);
+    std::cout << "Unknown type (999): ";
+    unknownMsg.printType();
+    
+    std::cout << "Message type system test: COMPLETED (visual inspection required)\n";
+}
+
+void testMessagePerformance() {
+    std::cout << "\n=== Testing Message - Performance ===\n";
+    
+    const int numMessages = 1000;
+    auto startTime = std::chrono::high_resolution_clock::now();
+    
+    // Test message creation and data writing performance
+    std::vector<Message> messages;
+    messages.reserve(numMessages);
+    
+    for (int i = 0; i < numMessages; ++i) {
+        messages.emplace_back(1);  // TEXT type
+        messages[i] << i << std::string("Message_") + std::to_string(i) << (i * 3.14);
+    }
+    
+    auto midTime = std::chrono::high_resolution_clock::now();
+    
+    // Test reading performance
+    int totalIds = 0;
+    for (int i = 0; i < numMessages; ++i) {
+        int id;
+        std::string text;
+        double value;
+        
+        messages[i] >> id >> text >> value;
+        totalIds += id;
+    }
+    
+    auto endTime = std::chrono::high_resolution_clock::now();
+    
+    auto writeTime = std::chrono::duration_cast<std::chrono::milliseconds>(midTime - startTime);
+    auto readTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - midTime);
+    auto totalTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+    
+    std::cout << "Performance results for " << numMessages << " messages:" << std::endl;
+    std::cout << "  Write time: " << writeTime.count() << "ms" << std::endl;
+    std::cout << "  Read time: " << readTime.count() << "ms" << std::endl;
+    std::cout << "  Total time: " << totalTime.count() << "ms" << std::endl;
+    std::cout << "  Average per message: " << (totalTime.count() / (double)numMessages) << "ms" << std::endl;
+    std::cout << "  Total IDs sum: " << totalIds << " (expected: " << ((numMessages - 1) * numMessages / 2) << ")" << std::endl;
+    
+    bool testPassed = (totalIds == (numMessages - 1) * numMessages / 2);
+    std::cout << "Message performance test: " << (testPassed ? "PASSED" : "FAILED") << std::endl;
+}
+
+void testMessageComplexScenario() {
+    std::cout << "\n=== Testing Message - Complex Scenario ===\n";
+    
+    // Simulate a network protocol scenario
+    struct NetworkHeader {
+        uint32_t sequenceNumber;
+        uint16_t flags;
+        uint16_t checksum;
+    };
+    
+    struct UserData {
+        int userId;
+        float position[3];  // x, y, z coordinates
+        bool isActive;
+    };
+    
+    // Create a COMMAND message
+    Message msg(3);
+    
+    NetworkHeader header = {12345, 0x01FF, 0xABCD};
+    UserData userData = {7890, {10.5f, 20.3f, 15.7f}, true};
+    std::string command = "MOVE_PLAYER";
+    std::string parameters = "speed=fast;direction=north";
+    
+    std::cout << "Creating complex network message..." << std::endl;
+    
+    // Pack message
+    msg << header << command << userData << parameters;
+    
+    std::cout << "Message size: " << msg.rawData().size() << " bytes" << std::endl;
+    
+    // Unpack message
+    NetworkHeader readHeader;
+    std::string readCommand;
+    UserData readUserData;
+    std::string readParameters;
+    
+    msg >> readHeader >> readCommand >> readUserData >> readParameters;
+    
+    std::cout << "Unpacked data:" << std::endl;
+    std::cout << "  Header: seq=" << readHeader.sequenceNumber 
+              << ", flags=0x" << std::hex << readHeader.flags 
+              << ", checksum=0x" << readHeader.checksum << std::dec << std::endl;
+    std::cout << "  Command: \"" << readCommand << "\"" << std::endl;
+    std::cout << "  UserData: id=" << readUserData.userId 
+              << ", pos=(" << readUserData.position[0] 
+              << "," << readUserData.position[1] 
+              << "," << readUserData.position[2] 
+              << "), active=" << readUserData.isActive << std::endl;
+    std::cout << "  Parameters: \"" << readParameters << "\"" << std::endl;
+    
+    // Verify data integrity
+    bool headerOk = (readHeader.sequenceNumber == header.sequenceNumber) &&
+                    (readHeader.flags == header.flags) &&
+                    (readHeader.checksum == header.checksum);
+    
+    bool userDataOk = (readUserData.userId == userData.userId) &&
+                      (std::abs(readUserData.position[0] - userData.position[0]) < 0.001f) &&
+                      (std::abs(readUserData.position[1] - userData.position[1]) < 0.001f) &&
+                      (std::abs(readUserData.position[2] - userData.position[2]) < 0.001f) &&
+                      (readUserData.isActive == userData.isActive);
+    
+    bool stringsOk = (readCommand == command) && (readParameters == parameters);
+    
+    bool testPassed = headerOk && userDataOk && stringsOk;
+    
+    std::cout << "Data integrity check:" << std::endl;
+    std::cout << "  Header: " << (headerOk ? "OK" : "FAILED") << std::endl;
+    std::cout << "  UserData: " << (userDataOk ? "OK" : "FAILED") << std::endl;
+    std::cout << "  Strings: " << (stringsOk ? "OK" : "FAILED") << std::endl;
+    
+    std::cout << "Message complex scenario test: " << (testPassed ? "PASSED" : "FAILED") << std::endl;
+}
+
+// Main test function for Message
+void testMessage() {
+    testMessageBasic();
+    testMessageDataOperations();
+    testMessageStringOperations();
+    testMessageMixedData();
+    testMessageStructData();
+    testMessageClearOperations();
+    testMessagePrintOperations();
+    testMessageErrorHandling();
+    testMessageTypeSystem();
+    testMessagePerformance();
+    testMessageComplexScenario();
+}
+
 
 int main() {
-    // testBasicPoolOperations();
-    // testWithCustomClass();
-    // testPoolCapacityAndReuse();
-    // testInvalidAccess();
+    testBasicPoolOperations();
+    testWithCustomClass();
+    testPoolCapacityAndReuse();
+    testInvalidAccess();
     
-    // // New DataBuffer tests
-    // testDataBuffer();
-    // testDataBufferAdvanced();
-    // testDataBufferErrors();
+    testDataBuffer();
+    testDataBufferAdvanced();
+    testDataBufferErrors();
 
-	// testMementoBasic();
-    // testMementoAdvanced();
-    // testMementoEdgeCases();
+	testMementoBasic();
+    testMementoAdvanced();
+    testMementoEdgeCases();
 
-	// testObserverBasic();
-    // testObserverWithEnum();
-    // testObserverMultipleSubscribers();
-    // testObserverComplexCapture();
+	testObserverBasic();
+    testObserverWithEnum();
+    testObserverMultipleSubscribers();
+    testObserverComplexCapture();
 
-	// testSingletonBasic();
-    // testSingletonMultipleTypes();
-    // testSingletonLifecycle(); 
-    // testSingletonPerfectForwarding();
-    // testSingletonConsistency();
+	testSingletonBasic();
+    testSingletonMultipleTypes();
+    testSingletonLifecycle(); 
+    testSingletonPerfectForwarding();
+    testSingletonConsistency();
 
-	// testStateMachineBasic();
-    // testStateMachineStrings();
-    // testStateMachineErrorHandling();
-    // testStateMachineComplex();
+	testStateMachineBasic();
+    testStateMachineStrings();
+    testStateMachineErrorHandling();
+    testStateMachineComplex();
 
-    // testThreadSafeIOStreamBasic();
-    // testThreadSafeIOStreamPrefix();
-    // testThreadSafeIOStreamInput();
-    // testThreadSafeIOStreamComplexData();
-    // testThreadSafeIOStreamManipulators();
-    // testThreadSafeIOStreamErrorHandling();
-    // testThreadSafeIOStreamPerformance();
+    testThreadSafeIOStreamBasic();
+    testThreadSafeIOStreamPrefix();
+    testThreadSafeIOStreamInput();
+    testThreadSafeIOStreamComplexData();
+    testThreadSafeIOStreamManipulators();
+    testThreadSafeIOStreamErrorHandling();
+    testThreadSafeIOStreamPerformance();
 
-    // testThreadSafeQueue();
-    // testThread();
-    // testWorkerPool();
-    // testPersistantWorker();
+    testThreadSafeQueue();
+    testThread();
+    testWorkerPool();
+    testPersistentWorker();
     
+    testMessage();
     
     std::cout << "\nAll tests completed!\n";
     return 0;

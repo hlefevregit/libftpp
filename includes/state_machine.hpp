@@ -6,7 +6,7 @@
 /*   By: hulefevr <hulefevr@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/30 17:17:01 by hulefevr          #+#    #+#             */
-/*   Updated: 2025/09/30 18:37:37 by hulefevr         ###   ########.fr       */
+/*   Updated: 2025/10/07 18:39:59 by hulefevr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,12 +16,13 @@
 #include <unordered_set>
 #include <functional>
 #include <stdexcept>
+#include <iostream>
 
 template<typename TState>
 class StateMachine {
 public:
 
-	StateMachine() = default;
+	StateMachine() : _hasInitialState(false) {}
 	StateMachine(const TState& initialState) : _currentState(initialState) {}
 
 	void addState(const TState& state);
@@ -38,6 +39,7 @@ public:
 private:
 
 	TState _currentState;
+	bool _hasInitialState;
 
 	template<typename T>
 	struct StateHash {
@@ -48,5 +50,7 @@ private:
 	std::unordered_map<TState, std::function<void()>> _actions;
 	std::unordered_map<std::pair<TState,TState>, std::function<void()>, StateHash<TState>> _transitions;
 };
+
+
 
 #include "state_machine.tpp"

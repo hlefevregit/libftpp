@@ -6,7 +6,7 @@
 /*   By: hulefevr <hulefevr@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/06 13:23:54 by hulefevr          #+#    #+#             */
-/*   Updated: 2025/10/06 13:44:21 by hulefevr         ###   ########.fr       */
+/*   Updated: 2025/10/07 18:28:35 by hulefevr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ public:
 	bool isRunning() const;
 	std::thread::id getId() const;
 	std::string getName() const;
+	void stop();
 
 private:
 	std::string _name;

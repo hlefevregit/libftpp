@@ -6,7 +6,7 @@
 /*   By: hulefevr <hulefevr@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/06 13:26:17 by hulefevr          #+#    #+#             */
-/*   Updated: 2025/10/06 13:27:15 by hulefevr         ###   ########.fr       */
+/*   Updated: 2025/10/07 18:28:50 by hulefevr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,3 +59,11 @@ void Thread::threadEntry(Thread* threadInstance) {
 	threadInstance->_isRunning.store(false);
 }
 
+void Thread::stop() {
+	if (_isRunning.load()) {
+		_isRunning.store(false);
+		if (_thread.joinable()) {
+			_thread.join();
+		}
+	}
+}

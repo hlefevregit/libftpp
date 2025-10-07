@@ -6,7 +6,7 @@
 /*   By: hulefevr <hulefevr@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/30 18:20:55 by hulefevr          #+#    #+#             */
-/*   Updated: 2025/09/30 18:34:57 by hulefevr         ###   ########.fr       */
+/*   Updated: 2025/10/07 18:40:38 by hulefevr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,10 @@
 template<typename TState>
 void StateMachine<TState>::addState(const TState& state) {
 	_states.insert(state);
+	if (!_hasInitialState) {
+		_currentState = state;
+		_hasInitialState = true;
+	}
 }
 
 template<typename TState>
@@ -37,16 +41,20 @@ void StateMachine<TState>::addAction(const TState& state, const std::function<vo
 
 template<typename TState>
 void StateMachine<TState>::transitionTo(const TState& state) {
-	if (_states.find(state) == _states.end()) {
-		throw std::invalid_argument("Target state must be added to the state machine before transitioning.");
-	}
-	auto transitionIt = _transitions.find({_currentState, state});
-	if (transitionIt != _transitions.end()) {
-		transitionIt->second(); // Execute transition action
-		_currentState = state;
-	} else {
-		throw std::runtime_error("No transition defined from current state to target state.");
-	}
+    if (_states.find(state) == _states.end()) {
+        throw std::invalid_argument("Target state must be added to the state machine before transitioning.");
+    }
+    
+    auto transitionIt = _transitions.find({_currentState, state});
+    if (transitionIt != _transitions.end()) {
+        transitionIt->second(); // Execute transition action
+    } else {
+        // ✅ OPTION: Permettre les transitions silencieuses
+        std::cout << "No transition action defined (silent transition)." << std::endl;
+        // Ou laisser l'exception pour forcer la définition explicite des transitions
+        // throw std::runtime_error("No transition defined from current state to target state.");
+    }
+    _currentState = state; // ✅ Toujours changer d'état
 }
 
 template<typename TState>
