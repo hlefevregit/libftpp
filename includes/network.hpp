@@ -6,10 +6,11 @@
 /*   By: hulefevr <hulefevr@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/06 15:53:57 by hulefevr          #+#    #+#             */
-/*   Updated: 2025/10/06 15:54:19 by hulefevr         ###   ########.fr       */
+/*   Updated: 2025/10/08 11:30:44 by hulefevr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include "message.hpp"
+#include "client.hpp"

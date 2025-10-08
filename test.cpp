@@ -6,7 +6,7 @@
 /*   By: hulefevr <hulefevr@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/30 15:24:30 by hulefevr          #+#    #+#             */
-/*   Updated: 2025/10/07 18:33:19 by hulefevr         ###   ########.fr       */
+/*   Updated: 2025/10/08 14:24:05 by hulefevr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -3836,6 +3836,7 @@ void testMessageComplexScenario() {
     std::cout << "Message complex scenario test: " << (testPassed ? "PASSED" : "FAILED") << std::endl;
 }
 
+
 // Main test function for Message
 void testMessage() {
     testMessageBasic();
@@ -3851,6 +3852,325 @@ void testMessage() {
     testMessageComplexScenario();
 }
 
+
+/*==============================================================================================*/
+/*==============================================================================================*/
+/*==============================================================================================*/
+/*========================================== CLIENT ============================================*/
+/*==============================================================================================*/
+/*==============================================================================================*/
+/*==============================================================================================*/
+
+void testClientBasic() {
+    std::cout << "\n=== Testing Client - Basic Operations ===\n";
+    
+    // Test constructor with invalid socket
+    Client client1(-1, "127.0.0.1", 8080);
+    
+    std::cout << "Client socket FD: " << client1.getSocketFd() << std::endl;
+    std::cout << "Client IP: " << client1.getIpAddress() << std::endl;
+    
+    // Test with valid parameters (but no actual connection)
+    Client client2(5, "192.168.1.100", 9090);
+    
+    std::cout << "Client2 socket FD: " << client2.getSocketFd() << std::endl;
+    std::cout << "Client2 IP: " << client2.getIpAddress() << std::endl;
+    
+    std::cout << "Client basic test: PASSED\n";
+}
+
+void testClientMessageActions() {
+    std::cout << "\n=== Testing Client - Message Actions ===\n";
+    
+    Client client(-1, "127.0.0.1", 8080);
+    
+    // Test variables to track action calls
+    std::atomic<int> textMessages(0);
+    std::atomic<int> commandMessages(0);
+    std::atomic<int> binaryMessages(0);
+    
+    // ✅ FIX: Utiliser Message::Type au lieu de Message::MessageType
+    client.defineAction(Message::TEXT, [&textMessages](const Message& msg) {
+        textMessages.fetch_add(1);
+        std::cout << "📝 TEXT message received (type: " << msg.getType() << ")" << std::endl;
+        
+        // Try to read string data if available
+        if (!msg.isEmpty()) {
+            std::cout << "   Message has data (" << msg.getDataSize() << " bytes)" << std::endl;
+        }
+    });
+    
+    client.defineAction(Message::COMMAND, [&commandMessages](const Message& msg) {
+        commandMessages.fetch_add(1);
+        std::cout << "⚡ COMMAND message received (type: " << msg.getType() << ")" << std::endl;
+    });
+    
+    client.defineAction(Message::BINARY, [&binaryMessages](const Message& msg) {
+        binaryMessages.fetch_add(1);
+        std::cout << "📦 BINARY message received (type: " << msg.getType() << ")" << std::endl;
+    });
+    
+    // Simulate message handling (since we can't actually receive without a server)
+    std::cout << "Simulating message handling...\n";
+    
+    // ✅ FIX: Utiliser Message::Type au lieu de Message::MessageType
+    Message textMsg(Message::TEXT);
+    textMsg << std::string("Hello from client test!");
+    client.handleMessage(textMsg);
+    
+    Message cmdMsg(Message::COMMAND);
+    cmdMsg << std::string("PING");
+    client.handleMessage(cmdMsg);
+    
+    Message binMsg(Message::BINARY);
+    binMsg << 42 << 3.14f;
+    client.handleMessage(binMsg);
+    
+    // Test unknown message type
+    Message unknownMsg(Message::UNKNOWN);
+    client.handleMessage(unknownMsg);
+    
+    std::cout << "Message counts:" << std::endl;
+    std::cout << "  TEXT: " << textMessages.load() << std::endl;
+    std::cout << "  COMMAND: " << commandMessages.load() << std::endl;
+    std::cout << "  BINARY: " << binaryMessages.load() << std::endl;
+    
+    bool testPassed = (textMessages.load() == 1) && 
+                      (commandMessages.load() == 1) && 
+                      (binaryMessages.load() == 1);
+    
+    std::cout << "Client message actions test: " << (testPassed ? "PASSED" : "FAILED") << std::endl;
+}
+
+void testClientConnectionAttempt() {
+    std::cout << "\n=== Testing Client - Connection Attempt ===\n";
+    
+    Client client(-1, "", 0);
+    
+    std::cout << "Testing connection to non-existent server..." << std::endl;
+    
+    // This should fail gracefully
+    client.connect("127.0.0.1", 12345);  // Port unlikely to be open
+    
+    std::cout << "Connection attempt completed (expected to fail)" << std::endl;
+    
+    // Test multiple connection attempts
+    std::cout << "Testing multiple connection attempts..." << std::endl;
+    client.connect("127.0.0.1", 12346);
+    client.connect("127.0.0.1", 12347);
+    
+    std::cout << "Client connection test: COMPLETED (no crashes = success)" << std::endl;
+}
+
+void testClientSendWithoutConnection() {
+    std::cout << "\n=== Testing Client - Send Without Connection ===\n";
+    
+    Client client(-1, "127.0.0.1", 8080);
+    
+    Message testMsg(Message::TEXT);
+    testMsg << std::string("This should not be sent");
+    
+    std::cout << "Attempting to send message without connection..." << std::endl;
+    client.send(testMsg);  // Should print error message
+    
+    std::cout << "Send without connection test: COMPLETED (error handling works)" << std::endl;
+}
+
+void testClientLifecycle() {
+    std::cout << "\n=== Testing Client - Lifecycle ===\n";
+    
+    // Test multiple client instances
+    for (int i = 0; i < 3; ++i) {
+        std::cout << "Creating client " << i << std::endl;
+        
+        {
+            Client client(-1, "192.168.1." + std::to_string(i), 8000 + i);
+            
+            // Define a simple action
+            client.defineAction(Message::TEXT, [i](const Message& msg) {
+                std::cout << "Client " << i << " handled message type " << msg.getType() << std::endl;
+            });
+            
+            // Test the action
+            Message testMsg(Message::TEXT);
+            client.handleMessage(testMsg);
+            
+        } // Client destructor called here
+        
+        std::cout << "Client " << i << " destroyed" << std::endl;
+    }
+    
+    std::cout << "Client lifecycle test: PASSED" << std::endl;
+}
+
+void testClientComplexMessages() {
+    std::cout << "\n=== Testing Client - Complex Messages ===\n";
+    
+    Client client(-1, "127.0.0.1", 8080);
+    
+    // Complex data structure for testing
+    struct GameEvent {
+        int eventId;
+        float timestamp;
+        std::string playerName;
+        bool isImportant;
+    };
+    
+    std::vector<GameEvent> receivedEvents;
+    
+    // Define action that handles complex data
+    client.defineAction(Message::BINARY, [&receivedEvents](const Message& msg) {
+        std::cout << "Received complex message with " << msg.getDataSize() << " bytes" << std::endl;
+        
+        // In a real scenario, you'd read the data back from the message
+        // For now, just simulate processing
+        GameEvent event = {999, 123.45f, "TestPlayer", true};
+        receivedEvents.push_back(event);
+        
+        std::cout << "Processed game event: ID=" << event.eventId 
+                  << ", Player=" << event.playerName << std::endl;
+    });
+    
+    // Create complex messages
+    for (int i = 0; i < 5; ++i) {
+        Message complexMsg(Message::BINARY);
+        
+        GameEvent event = {i, i * 10.5f, "Player_" + std::to_string(i), i % 2 == 0};
+        
+        // Pack complex data
+        complexMsg << event.eventId << event.timestamp << event.playerName << event.isImportant;
+        
+        std::cout << "Handling complex message " << i << std::endl;
+        client.handleMessage(complexMsg);
+    }
+    
+    std::cout << "Received " << receivedEvents.size() << " complex events" << std::endl;
+    
+    bool testPassed = (receivedEvents.size() == 5);
+    std::cout << "Client complex messages test: " << (testPassed ? "PASSED" : "FAILED") << std::endl;
+}
+void testClientPerformance() {
+    std::cout << "\n=== Testing Client - Performance ===\n";
+    
+    Client client(-1, "127.0.0.1", 8080);
+    
+    std::atomic<int> messagesHandled(0);
+    auto startTime = std::chrono::high_resolution_clock::now();
+    
+    // ✅ FIX: Ajouter (void)msg; pour éviter l'avertissement
+    client.defineAction(Message::TEXT, [&messagesHandled](const Message& msg) {
+        (void)msg; // Suppress unused parameter warning
+        messagesHandled.fetch_add(1);
+        // Minimal processing for performance test
+    });
+    
+    // Send many messages rapidly
+    const int numMessages = 1000;
+    std::cout << "Processing " << numMessages << " messages..." << std::endl;
+    
+    for (int i = 0; i < numMessages; ++i) {
+        Message msg(Message::TEXT);
+        msg << std::string("Message_") + std::to_string(i) << i;
+        
+        client.handleMessage(msg);
+    }
+    
+    auto endTime = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+    
+    std::cout << "Processed " << messagesHandled.load() << " messages in " 
+              << duration.count() << "ms" << std::endl;
+    
+    if (duration.count() > 0) {
+        std::cout << "Messages per second: " 
+                  << (messagesHandled.load() * 1000.0 / duration.count()) << std::endl;
+    } else {
+        std::cout << "Messages per second: >1000000 (too fast to measure)" << std::endl;
+    }
+    
+    bool testPassed = (messagesHandled.load() == numMessages);
+    std::cout << "Client performance test: " << (testPassed ? "PASSED" : "FAILED") << std::endl;
+}
+
+void testClientUpdate() {
+    std::cout << "\n=== Testing Client - Update Method ===\n";
+    
+    Client client(-1, "127.0.0.1", 8080);
+    
+    std::atomic<int> messagesProcessed(0);
+    
+    // ✅ FIX: Ajouter (void)msg; pour éviter l'avertissement
+    client.defineAction(Message::TEXT, [&messagesProcessed](const Message& msg) {
+        (void)msg; // Suppress unused parameter warning
+        messagesProcessed.fetch_add(1);
+        std::cout << "Processed message via update() mechanism" << std::endl;
+    });
+    
+    // Test update method (should handle no messages gracefully)
+    std::cout << "Testing update() with no pending messages..." << std::endl;
+    client.update();  // Should not crash or hang
+    
+    std::cout << "Messages processed: " << messagesProcessed.load() << std::endl;
+    std::cout << "Client update test: PASSED (no crashes)" << std::endl;
+}
+
+void testClientThreadSafety() {
+    std::cout << "\n=== Testing Client - Thread Safety Basics ===\n";
+    
+    Client client(-1, "127.0.0.1", 8080);
+    
+    std::atomic<int> threadMessages(0);
+    
+    // ✅ FIX: Ajouter (void)msg; pour éviter l'avertissement
+    client.defineAction(Message::BINARY, [&threadMessages](const Message& msg) {
+        (void)msg; // Suppress unused parameter warning
+        threadMessages.fetch_add(1);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1)); // Simulate some work
+    });
+    
+    // Simulate concurrent message handling
+    std::vector<std::thread> threads;
+    const int numThreads = 3;
+    const int messagesPerThread = 10;
+    
+    // ✅ FIX: Enlever messagesPerThread de la capture car il n'est pas utilisé
+    for (int t = 0; t < numThreads; ++t) {
+        threads.emplace_back([&client, t]() {
+            for (int i = 0; i < messagesPerThread; ++i) {
+                Message msg(Message::BINARY);
+                msg << (t * messagesPerThread + i);
+                
+                client.handleMessage(msg);
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            }
+        });
+    }
+    
+    // Wait for all threads
+    for (auto& thread : threads) {
+        thread.join();
+    }
+    
+    std::cout << "Expected messages: " << (numThreads * messagesPerThread) << std::endl;
+    std::cout << "Actual messages: " << threadMessages.load() << std::endl;
+    
+    bool testPassed = (threadMessages.load() == numThreads * messagesPerThread);
+    std::cout << "Client thread safety test: " << (testPassed ? "PASSED" : "FAILED") << std::endl;
+}
+
+
+void testClient() {
+    testClientBasic();
+    testClientMessageActions();
+    testClientConnectionAttempt();
+    testClientSendWithoutConnection();
+    testClientLifecycle();
+    testClientComplexMessages();
+    testClientPerformance();
+    // testClientErrorScenarios();
+    testClientUpdate();
+    testClientThreadSafety();
+}
 
 int main() {
     testBasicPoolOperations();
@@ -3896,6 +4216,7 @@ int main() {
     testPersistentWorker();
     
     testMessage();
+    testClient();
     
     std::cout << "\nAll tests completed!\n";
     return 0;

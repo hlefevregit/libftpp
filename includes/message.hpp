@@ -6,7 +6,7 @@
 /*   By: hulefevr <hulefevr@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/06 15:54:30 by hulefevr          #+#    #+#             */
-/*   Updated: 2025/10/06 16:30:33 by hulefevr         ###   ########.fr       */
+/*   Updated: 2025/10/08 12:30:02 by hulefevr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,10 +40,11 @@ public:
     Message(Type type);
     ~Message();
 
-    int type();
+    int type() const;
     Type getType();
     void setType(int type);
     void setType(Type type);
+    int getType() const {return type();};
 
     const std::vector<uint8_t>& rawData() const;
     
@@ -75,6 +76,9 @@ public:
     bool isCommandMessage() const;
     bool isEmpty() const;
     size_t getDataSize() const;
+    void ensureCapacity(size_t size);
+    void appendData(const uint8_t* data, size_t size);
+    void extractData(uint8_t* data, size_t size);
 
 private:
     std::vector<uint8_t> _data;
@@ -85,9 +89,6 @@ private:
     static std::unordered_map<std::string, int> _stringToType;
     static bool _typeMapsInitialized;
 
-    void appendData(const uint8_t* data, size_t size);
-    void extractData(uint8_t* data, size_t size);
-    void ensureCapacity(size_t size);
     void writeHeader();
     void readHeader();
     void checkReadBounds(size_t size) const;

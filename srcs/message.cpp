@@ -6,7 +6,7 @@
 /*   By: hulefevr <hulefevr@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/06 16:15:37 by hulefevr          #+#    #+#             */
-/*   Updated: 2025/10/06 16:31:09 by hulefevr         ###   ########.fr       */
+/*   Updated: 2025/10/08 13:13:14 by hulefevr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ Message::Message(Type type) : _type(static_cast<int>(type)), _readPos(0) {
 
 Message::~Message() {}
 
-int Message::type() {
+int Message::type() const {
 	return _type;
 }
 
