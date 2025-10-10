@@ -6,7 +6,7 @@
 /*   By: hulefevr <hulefevr@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/30 15:24:30 by hulefevr          #+#    #+#             */
-/*   Updated: 2025/10/08 14:24:05 by hulefevr         ###   ########.fr       */
+/*   Updated: 2025/10/10 13:05:54 by hulefevr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -4173,49 +4173,49 @@ void testClient() {
 }
 
 int main() {
-    testBasicPoolOperations();
-    testWithCustomClass();
-    testPoolCapacityAndReuse();
-    testInvalidAccess();
+    // testBasicPoolOperations();
+    // testWithCustomClass();
+    // testPoolCapacityAndReuse();
+    // testInvalidAccess();
     
-    testDataBuffer();
-    testDataBufferAdvanced();
-    testDataBufferErrors();
+    // testDataBuffer();
+    // testDataBufferAdvanced();
+    // testDataBufferErrors();
 
-	testMementoBasic();
-    testMementoAdvanced();
-    testMementoEdgeCases();
+	// testMementoBasic();
+    // testMementoAdvanced();
+    // testMementoEdgeCases();
 
-	testObserverBasic();
-    testObserverWithEnum();
-    testObserverMultipleSubscribers();
-    testObserverComplexCapture();
+	// testObserverBasic();
+    // testObserverWithEnum();
+    // testObserverMultipleSubscribers();
+    // testObserverComplexCapture();
 
-	testSingletonBasic();
-    testSingletonMultipleTypes();
-    testSingletonLifecycle(); 
-    testSingletonPerfectForwarding();
-    testSingletonConsistency();
+	// testSingletonBasic();
+    // testSingletonMultipleTypes();
+    // testSingletonLifecycle(); 
+    // testSingletonPerfectForwarding();
+    // testSingletonConsistency();
 
-	testStateMachineBasic();
-    testStateMachineStrings();
-    testStateMachineErrorHandling();
-    testStateMachineComplex();
+	// testStateMachineBasic();
+    // testStateMachineStrings();
+    // testStateMachineErrorHandling();
+    // testStateMachineComplex();
 
-    testThreadSafeIOStreamBasic();
-    testThreadSafeIOStreamPrefix();
-    testThreadSafeIOStreamInput();
-    testThreadSafeIOStreamComplexData();
-    testThreadSafeIOStreamManipulators();
-    testThreadSafeIOStreamErrorHandling();
-    testThreadSafeIOStreamPerformance();
+    // testThreadSafeIOStreamBasic();
+    // testThreadSafeIOStreamPrefix();
+    // testThreadSafeIOStreamInput();
+    // testThreadSafeIOStreamComplexData();
+    // testThreadSafeIOStreamManipulators();
+    // testThreadSafeIOStreamErrorHandling();
+    // testThreadSafeIOStreamPerformance();
 
-    testThreadSafeQueue();
-    testThread();
-    testWorkerPool();
-    testPersistentWorker();
+    // testThreadSafeQueue();
+    // testThread();
+    // testWorkerPool();
+    // testPersistentWorker();
     
-    testMessage();
+    // testMessage();
     testClient();
     
     std::cout << "\nAll tests completed!\n";

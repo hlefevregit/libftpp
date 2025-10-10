@@ -6,7 +6,7 @@
 /*   By: hulefevr <hulefevr@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/06 15:54:30 by hulefevr          #+#    #+#             */
-/*   Updated: 2025/10/08 12:30:02 by hulefevr         ###   ########.fr       */
+/*   Updated: 2025/10/10 13:04:23 by hulefevr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,13 +52,13 @@ public:
     void resetData();
     
     template<typename T>
-    Message& operator<<(const T& data);
+    Message& operator<<(const T& data) ;
     
     template<typename T>
-    Message& operator>>(T& data);
+    Message& operator>>(T& data) const;
     
     Message& operator<<(const std::string& data);
-    Message& operator>>(std::string& data);
+    Message& operator>>(std::string& data) const;
 
     void print() const;
     void printType() const;

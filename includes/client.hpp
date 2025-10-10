@@ -6,7 +6,7 @@
 /*   By: hulefevr <hulefevr@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 20:18:11 by hulefevr          #+#    #+#             */
-/*   Updated: 2025/10/08 12:17:28 by hulefevr         ###   ########.fr       */
+/*   Updated: 2025/10/10 12:59:53 by hulefevr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 
 class Client {
 public:
+	Client() : Client(-1, "127.0.0.1", 0) {}
 	Client(int socket_fd, const std::string& ip_address, uint16_t port);
 	~Client();
 
@@ -37,6 +38,7 @@ public:
 	void connect(const std::string& address, const size_t& port);
 	void disconnect();
 
+	void defineAction(int messageType, const std::function<void(const Message& msg)>& action);
 	void defineAction(const Message::Type& messageType, const std::function<void(const Message& msg)>& action);
 	void send(const Message& message);
 	

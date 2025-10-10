@@ -6,7 +6,7 @@
 /*   By: hulefevr <hulefevr@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/06 16:00:02 by hulefevr          #+#    #+#             */
-/*   Updated: 2025/10/06 16:17:55 by hulefevr         ###   ########.fr       */
+/*   Updated: 2025/10/10 13:05:09 by hulefevr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,10 +28,10 @@ Message& Message::operator<<(const T& data) {
 }
 
 template<typename T>
-Message& Message::operator>>(T& data) {
-	size_t dataSize = sizeof(T);
-	checkReadBounds(dataSize);
-	extractData(reinterpret_cast<uint8_t*>(&data), dataSize);
-	return *this;
+Message& Message::operator>>(T& data) const {
+    checkReadBounds(sizeof(T));
+    std::memcpy(&data, &_data[_readPos], sizeof(T));
+    _readPos += sizeof(T);
+    return const_cast<Message&>(*this);
 }
 

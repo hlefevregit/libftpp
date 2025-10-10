@@ -6,7 +6,7 @@
 /*   By: hulefevr <hulefevr@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/06 16:15:37 by hulefevr          #+#    #+#             */
-/*   Updated: 2025/10/08 13:13:14 by hulefevr         ###   ########.fr       */
+/*   Updated: 2025/10/10 13:04:39 by hulefevr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,20 +85,20 @@ Message& Message::operator<<(const std::string& data) {
 	return *this;
 }
 
-Message& Message::operator>>(std::string& data) {
-	uint32_t size;
-	checkReadBounds(sizeof(size));
-	extractData(reinterpret_cast<uint8_t*>(&size), sizeof(size));
-	
-	if (size > MAX_DATA_SIZE) {
-		throw std::runtime_error("String size exceeds maximum allowed size");
-	}
-	
-	checkReadBounds(size);
-	data.resize(size);
-	if (size > 0)
-		extractData(reinterpret_cast<uint8_t*>(&data[0]), size);
-	return *this;
+Message& Message::operator>>(std::string& data) const {
+    uint32_t size;
+    *this >> size;  // Extract size first
+    
+    if (size > MAX_DATA_SIZE) {
+        throw std::runtime_error("String size exceeds maximum allowed size");
+    }
+    
+    checkReadBounds(size);
+    data.resize(size);
+    std::memcpy(&data[0], &_data[_readPos], size);
+    _readPos += size;
+    
+    return const_cast<Message&>(*this);
 }
 
 void Message::print() const {

@@ -6,11 +6,12 @@
 /*   By: hulefevr <hulefevr@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 11:29:41 by hulefevr          #+#    #+#             */
-/*   Updated: 2025/10/08 12:06:00 by hulefevr         ###   ########.fr       */
+/*   Updated: 2025/10/10 13:00:07 by hulefevr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/network.hpp"
+#include "../includes/threading.hpp"
 
 
 Client::Client(int socket_fd, const std::string& ip_address, uint16_t port)
@@ -167,3 +168,7 @@ void Client::handleMessage(const Message& message) {
 	}
 }
 
+
+void Client::defineAction(int messageType, const std::function<void(const Message& msg)>& action) {
+    _actions[static_cast<Message::Type>(messageType)] = action;
+}
