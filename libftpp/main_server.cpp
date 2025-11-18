@@ -1,12 +1,15 @@
-#include "server.hpp"
-#include "thread_safe_iostream.hpp"
+#include "../includes/server.hpp"
+#include "../includes/thread_safe_iostream.hpp"
 #include <string>
+#include <algorithm>
 
 int main() {
     Server server;
 
+    ThreadSafeIOStream threadSafeCout;
+
     // Define an action for messages of type 1 (int)
-    server.defineAction(1, [&server](long long& clientID, const Message& msg){
+    server.defineAction(Message::Type(1), [&server, &threadSafeCout](long long& clientID, const Message& msg){
         int value;
         msg >> value;
         threadSafeCout << "Received an int " << value << " from client " << clientID << std::endl;
@@ -18,7 +21,7 @@ int main() {
     });
 
     // Define an action for messages of type 2 (size_t followed by characters)
-    server.defineAction(2, [](long long& clientID, const Message& msg){
+    server.defineAction(Message::Type(2), [&threadSafeCout](long long& clientID, const Message& msg){
         size_t length;
         std::string text;
         msg >> length;
@@ -38,7 +41,7 @@ int main() {
 
 	while (!quit)
 	{
-		client.update();
+        server.update();
 
 		threadSafeCout << "Server updated." << std::endl;
 		threadSafeCout << "Available operations :" << std::endl;

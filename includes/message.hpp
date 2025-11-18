@@ -6,7 +6,7 @@
 /*   By: hulefevr <hulefevr@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/06 15:54:30 by hulefevr          #+#    #+#             */
-/*   Updated: 2025/10/10 13:04:23 by hulefevr         ###   ########.fr       */
+/*   Updated: 2025/10/14 11:56:10 by hulefevr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,7 @@ public:
     void ensureCapacity(size_t size);
     void appendData(const uint8_t* data, size_t size);
     void extractData(uint8_t* data, size_t size);
+    const std::vector<uint8_t>& getData() const { return _data; }
 
 private:
     std::vector<uint8_t> _data;

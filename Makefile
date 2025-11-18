@@ -26,11 +26,12 @@ INCLUDES = 	includes/pool.hpp includes/pool.tpp \
         includes/thread_safe_queue.hpp includes/thread_safe_queue.tpp \
         includes/worker_pool.hpp includes/persistant_worker.hpp \
         includes/message.hpp includes/message.tpp \
-        includes/client.hpp includes/network.hpp includes/threading.hpp
-        
+        includes/client.hpp includes/network.hpp includes/threading.hpp \
+        includes/server.hpp
+
 SRCS = srcs/data_buffer.cpp srcs/memento.cpp srcs/thread_safe_iostream.cpp \
     srcs/thread.cpp srcs/worker_pool.cpp srcs/persistant_worker.cpp \
-    srcs/message.cpp srcs/client.cpp
+    srcs/message.cpp srcs/client.cpp srcs/server.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 LIBFTPP_DIR = libftpp
